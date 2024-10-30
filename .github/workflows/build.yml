@@ -40,3 +40,11 @@ jobs:
            /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
            -D TDESKTOP_API_ID=2040 \
            -D TDESKTOP_API_HASH=b18441a1ff607e10a989891a5462e627
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: os_build
+          path: out/*
+          compression-level: 9
+          if-no-files-found: error
