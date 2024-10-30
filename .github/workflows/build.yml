@@ -26,13 +26,18 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-poetry python-is-python3 python3-venv python3-pip
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip3 install poetry
 
       - name: prepare build
         run: |
+          source .venv/bin/activate
           ./tdesktop/Telegram/build/prepare/linux.sh
 
       - name: build tg
         run: |
+          source .venv/bin/activate
           cd tdesktop
           docker run --rm -it \
            -v "$PWD:/usr/src/tdesktop" \
