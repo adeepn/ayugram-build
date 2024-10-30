@@ -14,14 +14,6 @@ jobs:
     name: Build all
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the latest code
-        uses: actions/checkout@v4
-        with:
-          repository: AyuGram/AyuGramDesktop
-          submodules: true
-          path: tdesktop
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
       - name: prepare packages
         run: |
           sudo apt-get update
@@ -38,22 +30,35 @@ jobs:
           sudo rm -rf /opt/hostedtoolcache/CodeQL
           sudo mkdir /mnt/cache
           sudo mkdir /mnt/output
+          sudo mkdir /mnt/build
           WORKSPACE_OWNER="$(stat -c '%U:%G' "${GITHUB_WORKSPACE}")"
           # output directory is symlinked for easier access from workspace
           # but for build container it must be mounted as a volume
           sudo ln -sf /mnt/output "${GITHUB_WORKSPACE}/output"
           sudo chown -R "${WORKSPACE_OWNER}" /mnt/cache
           sudo chown -R "${WORKSPACE_OWNER}" /mnt/output
+          sudo chown -R "${WORKSPACE_OWNER}" /mnt/build
           df -h
+
+      - name: Checkout the latest code
+        uses: actions/checkout@v4
+        with:
+          repository: AyuGram/AyuGramDesktop
+          submodules: true
+          path: /mnt/build/tdesktop
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
 
       - name: prepare build
         run: |
           source .venv/bin/activate
+          cd /mnt/build
           ./tdesktop/Telegram/build/prepare/linux.sh
 
       - name: build tg
         run: |
           source .venv/bin/activate
+          cd /mnt/build
           cd tdesktop
           docker run --rm -it \
            -v "$PWD:/usr/src/tdesktop" \
@@ -66,6 +71,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: os_build
-          path: out/*
+          path: /mnt/build/tdesktop/out/*
           compression-level: 9
           if-no-files-found: error
