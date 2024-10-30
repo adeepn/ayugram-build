@@ -24,4 +24,6 @@ jobs:
           fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
       - name: prepare
         run: |
+          apt-get update
+          apt-get install -y python3-poetry python-is-python3 python3-venv python3-pip
           ./tdesktop/Telegram/build/prepare/linux.sh
