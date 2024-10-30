@@ -1,0 +1,27 @@
+name: Buildgram
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: read
+
+    name: Build all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the latest code
+        uses: actions/checkout@v4
+        with:
+          repository: AyuGram/AyuGramDesktop
+          submodules: true
+          path: tdesktop
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
+      - name: prepare
+        run: |
+          ./tdesktop/Telegram/build/prepare/linux.sh
