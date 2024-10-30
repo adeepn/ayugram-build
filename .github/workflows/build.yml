@@ -22,8 +22,21 @@ jobs:
           path: tdesktop
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
-      - name: prepare
+      - name: prepare packages
         run: |
-          apt-get update
-          apt-get install -y python3-poetry python-is-python3 python3-venv python3-pip
+          sudo apt-get update
+          sudo apt-get install -y python3-poetry python-is-python3 python3-venv python3-pip
+
+      - name: prepare build
+        run: |
           ./tdesktop/Telegram/build/prepare/linux.sh
+
+      - name: build tg
+        run: |
+          cd tdesktop
+          docker run --rm -it \
+           -v "$PWD:/usr/src/tdesktop" \
+           tdesktop:centos_env \
+           /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
+           -D TDESKTOP_API_ID=2040 \
+           -D TDESKTOP_API_HASH=b18441a1ff607e10a989891a5462e627
